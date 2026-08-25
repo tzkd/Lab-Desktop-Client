@@ -1,0 +1,69 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\LabDesktop.Client.Core\LabDesktop.Client.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2"
+                      Version="1.0.4129.50"
+                      GeneratePathProperty="true"
+                      PrivateAssets="all" />
+    <PackageReference Include="SSH.NET" Version="2026.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="LabDesktop.Client.Core.Tests" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <ApplicationIcon>Assets\LabConnect.ico</ApplicationIcon>
+    <AssemblyName>LabDesktopClient</AssemblyName>
+    <RootNamespace>LabDesktop.Client.App</RootNamespace>
+    <Product>Lab Desktop Client</Product>
+    <Description>Secure Windows client for remote Linux desktops and per-user Isaac Sim GUI sessions.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\LabConnect.ico"
+                      LogicalName="LabDesktop.Client.App.Assets.LabConnect.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\web\isaac\dist\**\*">
+      <Link>Web\Isaac\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!--
+    WebView2Loader is native and architecture-specific.  Keep it beside the
+    single-file executable so Windows can load it before managed extraction.
+  -->
+  <Target Name="PublishWebView2NativeLoader"
+          AfterTargets="Publish"
+          Condition="'$(RuntimeIdentifier)' == 'win-x64'">
+    <PropertyGroup>
+      <WebView2NativeLoader>$(PkgMicrosoft_Web_WebView2)\runtimes\win-x64\native\WebView2Loader.dll</WebView2NativeLoader>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(WebView2NativeLoader)')"
+           Text="The WebView2 SDK package is missing the win-x64 native loader." />
+    <Copy SourceFiles="$(WebView2NativeLoader)"
+          DestinationFiles="$(PublishDir)WebView2Loader.dll"
+          SkipUnchangedFiles="true" />
+    <Error Condition="!Exists('$(PublishDir)WebView2Loader.dll')"
+           Text="The win-x64 publish output is missing WebView2Loader.dll." />
+  </Target>
+
+  <!-- The WebView2 SDK adds both UI adapters.  This application is WinForms-only. -->
+  <Target Name="RemoveUnusedWebView2WpfReference" BeforeTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <Reference Remove="@(Reference)"
+                 Condition="'%(Reference.Filename)' == 'Microsoft.Web.WebView2.Wpf'" />
+    </ItemGroup>
+  </Target>
+</Project>

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src ws://127.0.0.1:* http://127.0.0.1:*"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Isaac Sim GUI</title>
+  </head>
+  <body>
+    <main id="stream">
+      <div id="video-container" hidden tabindex="0">
+        <video id="remote-video" autoplay playsinline></video>
+        <audio id="remote-audio" autoplay></audio>
+      </div>
+      <div id="message">正在连接 Isaac Sim GUI…</div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
